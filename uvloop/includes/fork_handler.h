@@ -1,7 +1,7 @@
 volatile uint64_t MAIN_THREAD_ID = 0;
 volatile int8_t MAIN_THREAD_ID_SET = 0;
 
-typedef void (*OnForkHandler)();
+typedef void (*OnForkHandler)(void);
 
 OnForkHandler __forkHandler = NULL;
 

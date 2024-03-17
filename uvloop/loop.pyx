@@ -2750,7 +2750,7 @@ cdef class Loop:
                                executable=None,
                                pass_fds=(),
                                # For tests only! Do not use in your code. Ever.
-                               __uvloop_sleep_after_fork=False):
+                               uvloop_sleep_after_fork=False):
 
         # TODO: Implement close_fds (might not be very important in
         # Python 3.5, since all FDs aren't inheritable by default.)
@@ -2770,7 +2770,7 @@ cdef class Loop:
         if executable is not None:
             args[0] = executable
 
-        if __uvloop_sleep_after_fork:
+        if uvloop_sleep_after_fork:
             debug_flags |= __PROCESS_DEBUG_SLEEP_AFTER_FORK
 
         waiter = self._new_future()
@@ -3350,11 +3350,10 @@ cdef vint __forking = 0
 cdef Loop __forking_loop = None
 
 
-cdef void __get_fork_handler() noexcept nogil:
-    with gil:
-        if (__forking and __forking_loop is not None and
-                __forking_loop.active_process_handler is not None):
-            __forking_loop.active_process_handler._after_fork()
+cdef void __get_fork_handler() noexcept with gil:
+    if (__forking and __forking_loop is not None and
+            __forking_loop.active_process_handler is not None):
+        __forking_loop.active_process_handler._after_fork()
 
 cdef __install_atfork():
     global __atfork_installed
